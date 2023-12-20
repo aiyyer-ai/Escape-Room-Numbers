@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Order App</title>
+    <style>
+        img {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="image-container"></div>
+<div>
+    <button onclick="submitOrder(1)">1</button>
+    <button onclick="submitOrder(2)">2</button>
+    <button onclick="submitOrder(3)">3</button>
+    <button onclick="submitOrder(4)">4</button>
+    <button onclick="submitOrder(5)">5</button>
+</div>
+
+<script>
+    const sheetId = 'YOUR_SHEET_ID';
+    const apiKey = 'YOUR_API_KEY';
+    const accessToken = 'YOUR_ACCESS_TOKEN';
+
+    const images = ['image1.jpg', 'image2.jpg', 'image3.jpg', 'image4.jpg', 'image5.jpg', 'image6.jpg'];
+
+    // Shuffle images in random order
+    const shuffledImages = images.sort(() => Math.random() - 0.5);
+
+    // Display images on the webpage
+    const imageContainer = document.getElementById('image-container');
+    shuffledImages.forEach(image => {
+        const imgElement = document.createElement('img');
+        imgElement.src = image;
+        imageContainer.appendChild(imgElement);
+    });
+
+    // Function to submit order to Google Sheets
+    function submitOrder(order) {
+        const imageOrder = shuffledImages.join(',');
+
+        // Use your preferred method to make an API request to Google Sheets
+        // For simplicity, I'll use fetch here, but you may need to handle authentication and CORS issues
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1?valueInputOption=RAW`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+                values: [[imageOrder, order]]
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to submit order to Google Sheets');
+            }
+            alert('Order submitted successfully!');
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Failed to submit order to Google Sheets');
+        });
+    }
+</script>
+
+</body>
+</html>
